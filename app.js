@@ -1,5 +1,6 @@
 const express = require('express');
 const postRouter = require('./routes/post');
+const userRouter = require('./routes/user');
 const db = require('./models');
 const app = express();
 
@@ -10,6 +11,9 @@ db.sequelize
     console.log('db is connected!');
   })
   .catch(console.error);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
   res.send('hello express');
@@ -27,6 +31,7 @@ app.get('/posts', (req, res) => {
   ]);
 });
 
+app.use('/user', userRouter);
 app.use('/post', postRouter);
 
 app.listen(3065, () => {
