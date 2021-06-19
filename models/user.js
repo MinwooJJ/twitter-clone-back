@@ -2,6 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   // User의 경우 mySql에서 자동으로 users로 이름이 변경
   // id는 mySql에서 자동으로 생성
   const User = sequelize.define(
+    'User',
     {
       email: {
         type: DataTypes.STRING(30),
