@@ -1,8 +1,10 @@
 const express = require('express');
+const app = express();
+const cors = require('cors');
+
 const postRouter = require('./routes/post');
 const userRouter = require('./routes/user');
 const db = require('./models');
-const app = express();
 
 // db와 sequelize 연결
 db.sequelize
@@ -11,6 +13,14 @@ db.sequelize
     console.log('db is connected!');
   })
   .catch(console.error);
+
+// 모든 요청 허용
+app.use(
+  cors({
+    origin: true,
+    credentials: false,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
