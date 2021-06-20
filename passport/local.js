@@ -10,6 +10,7 @@ module.exports = () => {
   passport.use(
     new LocalStrategy(
       {
+        // req.body.email, req.body.password
         usernameField: 'email',
         passwordField: 'password',
       },
