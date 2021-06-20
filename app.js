@@ -5,6 +5,7 @@ const cors = require('cors');
 const postRouter = require('./routes/post');
 const userRouter = require('./routes/user');
 const db = require('./models');
+const passportConfig = require('./passport');
 
 // db와 sequelize 연결
 db.sequelize
@@ -14,6 +15,9 @@ db.sequelize
   })
   .catch(console.error);
 
+// passport 실행
+passportConfig();
+
 // 모든 요청 허용
 app.use(
   cors({
@@ -21,7 +25,6 @@ app.use(
     credentials: false,
   })
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
