@@ -2,13 +2,14 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 const { User, Post } = require('../models');
+const { isSignedIn, isNotSignedIn } = require('./middlewares');
 
 const router = express.Router();
 
 // POST /user/signin
 // done의 return 값이 callback 함수처럼 authenticate로 전달됨
 // next, res 사용을 위한 미들웨어 확장 -> 사용하고자 하는 미들웨어를 express 함수로 감싸고 뒤에 매개변수 정의
-router.post('/signin', (req, res, next) => {
+router.post('/signin', isNotSignedIn, (req, res, next) => {
   // LocalStrategy에서 인증이 성공한 경우 다음 콜백함수로 이동
   passport.authenticate('local', (err, user, info) => {
     if (err) {
@@ -55,14 +56,14 @@ router.post('/signin', (req, res, next) => {
 });
 
 // 로그인 한 후로는 req.user에 사용자 정보가 들어있음
-router.post('/signout', (req, res, next) => {
+router.post('/signout', isSignedIn, (req, res, next) => {
   req.logout();
   req.session.destroy();
   res.send('OK signout');
 });
 
 // POST /user
-router.post('/', async (req, res, next) => {
+router.post('/', isNotSignedIn, async (req, res, next) => {
   try {
     // db에서 email 중복 확인, 없다면 null
     const exUser = await User.findOne({
