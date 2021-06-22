@@ -108,4 +108,22 @@ router.post('/signout', isSignedIn, (req, res, next) => {
   res.send('OK signout');
 });
 
+router.patch('/nickname', isSignedIn, async (req, res, next) => {
+  try {
+    await User.update(
+      {
+        nickname: req.body.nickname, // 프론트에서 온 데이터
+      },
+      {
+        where: { id: req.user.id }, // 변경하고자 하는 데이터
+      }
+    );
+
+    res.status(201).json(req.body.nickname);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 module.exports = router;

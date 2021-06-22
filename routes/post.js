@@ -32,6 +32,20 @@ router.post('/', isSignedIn, async (req, res, next) => {
   }
 });
 
+router.delete('/:postId', isSignedIn, async (req, res, next) => {
+  try {
+    await Post.destroy({
+      where: { id: req.params.postId },
+      UserId: req.user.id, // 내가 쓴 게시글
+    });
+
+    res.status(200).json(parseInt(req.params.postId, 10));
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.post('/:postId/comment', isSignedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({
@@ -44,7 +58,7 @@ router.post('/:postId/comment', isSignedIn, async (req, res, next) => {
         .send(`The post you were looking for doesn't exist`);
     }
 
-    const commnet = await Comment.create({
+    const comment = await Comment.create({
       content: req.body.content,
       PostId: parseInt(req.params.postId, 10),
       UserId: req.user.id,
@@ -62,9 +76,9 @@ router.post('/:postId/comment', isSignedIn, async (req, res, next) => {
   }
 });
 
-router.patch('/:postId/like', async (req, res, next) => {
+router.patch('/:postId/like', isSignedIn, async (req, res, next) => {
   try {
-    const post = await Post.fineOne({ where: { id: req.params.postId } });
+    const post = await Post.findOne({ where: { id: req.params.postId } });
     if (!post) {
       return res.status(403).send('The post does not exist');
     }
@@ -77,9 +91,9 @@ router.patch('/:postId/like', async (req, res, next) => {
   }
 });
 
-router.delete('/:postId/like', async (req, res, next) => {
+router.delete('/:postId/like', isSignedIn, async (req, res, next) => {
   try {
-    const post = await Post.fineOne({ where: { id: req.params.postId } });
+    const post = await Post.findOne({ where: { id: req.params.postId } });
     if (!post) {
       return res.status(403).send('The post does not exist');
     }
@@ -90,10 +104,6 @@ router.delete('/:postId/like', async (req, res, next) => {
     console.error(error);
     next(error);
   }
-});
-
-router.delete('/', (req, res, next) => {
-  res.json('yeah d');
 });
 
 module.exports = router;
