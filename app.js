@@ -27,8 +27,9 @@ passportConfig();
 // 모든 요청 허용
 app.use(
   cors({
-    origin: true,
-    credentials: false,
+    // ACCESS-CONTROL-ALLOW-ORIGIN, CREDENTIALS
+    origin: 'http://localhost:3000',
+    credentials: true,
   })
 );
 app.use(express.json());

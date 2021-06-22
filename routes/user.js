@@ -6,6 +6,60 @@ const { isSignedIn, isNotSignedIn } = require('./middlewares');
 
 const router = express.Router();
 
+// GET /user
+// 새로고침시 로그인 정보를 보내주기 위한 API
+router.get('/', async (req, res, next) => {
+  try {
+    if (req.user) {
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: req.user.id },
+        attributes: {
+          exclude: ['password'],
+        },
+        include: [
+          { model: Post, attributes: ['id'] },
+          { model: User, as: 'Followings', attributes: ['id'] },
+          { model: User, as: 'Followers', attributes: ['id'] },
+        ],
+      });
+      res.status(200).json(fullUserWithoutPassword);
+    } else {
+      res.status(200).json(null);
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+// POST /user
+router.post('/', isNotSignedIn, async (req, res, next) => {
+  try {
+    // db에서 email 중복 확인, 없다면 null
+    const exUser = await User.findOne({
+      where: {
+        email: req.body.email,
+      },
+    });
+
+    if (exUser) {
+      return res.status(403).send('Sorry, that e-mail already exists!');
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 12);
+    await User.create({
+      email: req.body.email,
+      nickname: req.body.nickname,
+      password: hashedPassword,
+    });
+
+    res.status(201).json('OK signup');
+  } catch (error) {
+    console.error(error);
+    next(error); // status 500
+  }
+});
+
 // POST /user/signin
 // done의 return 값이 callback 함수처럼 authenticate로 전달됨
 // next, res 사용을 위한 미들웨어 확장 -> 사용하고자 하는 미들웨어를 express 함수로 감싸고 뒤에 매개변수 정의
@@ -37,17 +91,9 @@ router.post('/signin', isNotSignedIn, (req, res, next) => {
           exclude: ['password'],
         },
         include: [
-          {
-            model: Post,
-          },
-          {
-            model: User,
-            as: 'Followings',
-          },
-          {
-            model: User,
-            as: 'Followers',
-          },
+          { model: Post, attributes: ['id'] },
+          { model: User, as: 'Followings', attributes: ['id'] },
+          { model: User, as: 'Followers', attributes: ['id'] },
         ],
       });
       return res.status(200).json(fullUserWithoutPassword);
@@ -60,34 +106,6 @@ router.post('/signout', isSignedIn, (req, res, next) => {
   req.logout();
   req.session.destroy();
   res.send('OK signout');
-});
-
-// POST /user
-router.post('/', isNotSignedIn, async (req, res, next) => {
-  try {
-    // db에서 email 중복 확인, 없다면 null
-    const exUser = await User.findOne({
-      where: {
-        email: req.body.email,
-      },
-    });
-
-    if (exUser) {
-      return res.status(403).send('Sorry, that e-mail already exists!');
-    }
-
-    const hashedPassword = await bcrypt.hash(req.body.password, 12);
-    await User.create({
-      email: req.body.email,
-      nickname: req.body.nickname,
-      password: hashedPassword,
-    });
-
-    res.status(201).json('OK signup');
-  } catch (error) {
-    console.error(error);
-    next(error); // status 500
-  }
 });
 
 module.exports = router;
