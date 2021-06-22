@@ -1,4 +1,5 @@
 const express = require('express');
+const morgan = require('morgan');
 const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -6,6 +7,7 @@ const passport = require('passport');
 const dotenv = require('dotenv');
 
 const postRouter = require('./routes/post');
+const postsRouter = require('./routes/posts');
 const userRouter = require('./routes/user');
 const db = require('./models');
 const passportConfig = require('./passport');
@@ -23,6 +25,8 @@ db.sequelize
 
 // passport 실행
 passportConfig();
+
+app.use(morgan('dev'));
 
 // 모든 요청 허용
 app.use(
@@ -53,16 +57,9 @@ app.get('/', (req, res) => {
   res.send('hello api');
 });
 
-app.get('/posts', (req, res) => {
-  res.json([
-    { id: 1, content: 'hello' },
-    { id: 2, content: 'hello' },
-    { id: 3, content: 'hello' },
-  ]);
-});
-
 app.use('/user', userRouter);
 app.use('/post', postRouter);
+app.use('/posts', postsRouter);
 
 app.listen(3065, () => {
   console.log('Server On!');
