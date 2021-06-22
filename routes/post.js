@@ -18,9 +18,10 @@ router.post('/', isSignedIn, async (req, res, next) => {
         { model: Image },
         {
           model: Comment,
-          include: [{ model: User, attributes: ['id', 'nickname'] }],
+          include: [{ model: User, attributes: ['id', 'nickname'] }], // 댓글 작성자
         },
-        { model: User, attributes: ['id', 'nickname'] },
+        { model: User, attributes: ['id', 'nickname'] }, // 게시글 작성자
+        { model: User, as: 'Likers', attributes: ['id'] }, // 좋아요 누른 사람
       ],
     });
 
@@ -55,6 +56,36 @@ router.post('/:postId/comment', isSignedIn, async (req, res, next) => {
     });
 
     res.status(201).json(fullComment);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.patch('/:postId/like', async (req, res, next) => {
+  try {
+    const post = await Post.fineOne({ where: { id: req.params.postId } });
+    if (!post) {
+      return res.status(403).send('The post does not exist');
+    }
+    await post.addLikers(req.user.id);
+
+    res.status(201).json({ UserId: req.user.id, PostId: post.id });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.delete('/:postId/like', async (req, res, next) => {
+  try {
+    const post = await Post.fineOne({ where: { id: req.params.postId } });
+    if (!post) {
+      return res.status(403).send('The post does not exist');
+    }
+    await post.removeLikers(req.user.id);
+
+    res.status(201).json({ UserId: req.user.id, PostId: post.id });
   } catch (error) {
     console.error(error);
     next(error);
