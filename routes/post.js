@@ -1,9 +1,19 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const { Post, Comment, Image, User } = require('../models');
-const comment = require('../models/comment');
 const { isSignedIn } = require('./middlewares');
+const multer = require('multer');
 
 const router = express.Router();
+
+// uploads 폴더 생성
+try {
+  fs.accessSync('uploads');
+} catch (error) {
+  console.log('Create uploads folder because it does not exist');
+  fs.mkdirSync('uploads');
+}
 
 router.post('/', isSignedIn, async (req, res, next) => {
   try {
@@ -105,5 +115,29 @@ router.delete('/:postId/like', isSignedIn, async (req, res, next) => {
     next(error);
   }
 });
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, done) {
+      done(null, 'uploads'); // uploads 폴더에 저장
+    },
+    filename(req, file, done) {
+      // ex minwoo.png
+      const ext = path.extname(file.originalname); // 확장자 추출(.png)
+      const basename = path.basename(file.originalname, ext); // minwoo
+      done(null, basename + new Date().getTime() + ext); // minwoo20210623.png
+    },
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit
+});
+router.post(
+  '/images',
+  isSignedIn,
+  upload.array('image'), // 한 장만 올리고 싶으면 single
+  async (req, res, next) => {
+    console.log(req.files); // image에 대한 정보
+    res.json(req.files.map((v) => v.filename));
+  }
+);
 
 module.exports = router;

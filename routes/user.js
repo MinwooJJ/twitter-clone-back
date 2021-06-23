@@ -131,7 +131,7 @@ router.patch('/:userId/follow', isSignedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({ where: { id: req.params.userId } });
     if (!user) {
-      res.status(403).send('This user does not exist');
+      return res.status(403).send('This user does not exist');
     }
     await user.addFollower(req.user.id);
 
@@ -147,7 +147,7 @@ router.delete('/:userId/follow', isSignedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({ where: { id: req.params.userId } });
     if (!user) {
-      res.status(403).send('This user does not exist');
+      return res.status(403).send('This user does not exist');
     }
     await user.removeFollower(req.user.id);
 
@@ -163,7 +163,7 @@ router.delete('/follower/:userId', isSignedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({ where: { id: req.params.userId } });
     if (!user) {
-      res.status(403).send('This user does not exist');
+      return res.status(403).send('This user does not exist');
     }
     await user.removeFollowing(req.user.id);
 
@@ -179,7 +179,7 @@ router.get('/followers', isSignedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({ where: { id: req.user.id } });
     if (!user) {
-      res.status(403).send('This user does not exist');
+      return res.status(403).send('This user does not exist');
     }
     const followers = await user.getFollowers();
 
@@ -195,7 +195,7 @@ router.get('/followings', isSignedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({ where: { id: req.user.id } });
     if (!user) {
-      res.user(id).send('This user does not exist');
+      return res.user(id).send('This user does not exist');
     }
     const followings = await user.getFollowings();
 
