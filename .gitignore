@@ -140,3 +140,6 @@ react-tweeter-aws.pem
 node_modules
 .env
 .next
+
+# Images
+**/*.jpg
