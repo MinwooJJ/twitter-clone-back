@@ -192,7 +192,7 @@ router.post('/:postId/retweet', isSignedIn, async (req, res, next) => {
     }
 
     // 자기 게시글 or 자기 게시글을 딴 사람이 리트윗 한 것
-    if (req.user.id === post.UserId || post?.Retweet.UserId === req.user.id) {
+    if (req.user.id === post.UserId || post.Retweet?.UserId === req.user.id) {
       return res.status(403).send('You cannot retweet your own writing');
     }
 
