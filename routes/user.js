@@ -32,6 +32,37 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// 특정 사용자 데이터 가져오기
+router.get('/:userId', async (req, res, next) => {
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: { id: req.params.userId },
+      attributes: {
+        exclude: ['password'],
+      },
+      include: [
+        { model: Post, attributes: ['id'] },
+        { model: User, as: 'Followings', attributes: ['id'] },
+        { model: User, as: 'Followers', attributes: ['id'] },
+      ],
+    });
+    if (fullUserWithoutPassword) {
+      // 개인정보 보호
+      const data = fullUserWithoutPassword.toJson();
+      data.Posts = data.Posts.length;
+      data.Followings = data.Followings.length;
+      data.Followers = data.Followers.length;
+
+      res.status(200).json(data);
+    } else {
+      res.status(404).json('That user does not exist');
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 // POST /user
 router.post('/', isNotSignedIn, async (req, res, next) => {
   try {
