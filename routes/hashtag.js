@@ -1,10 +1,9 @@
 const express = require('express');
-const { Op } = require('sequelize');
-const { Post, User, Image, Comment } = require('../models');
+const { User, Post, Hashtag, Comment, Image } = require('../models');
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/:hashtag', async (req, res, next) => {
   try {
     const where = {};
     // 초기 로딩이 아닐 경우( 값이 존재)
@@ -21,6 +20,10 @@ router.get('/', async (req, res, next) => {
         [Comment, 'createdAt', 'DESC'],
       ],
       include: [
+        {
+          model: Hashtag,
+          where: { name: decodeURIComponent(req.params.hashtag) },
+        },
         { model: User, attributes: ['id', 'nickname'] },
         { model: Image },
         {
