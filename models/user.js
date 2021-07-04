@@ -1,33 +1,38 @@
-module.exports = (sequelize, DataTypes) => {
-  // User의 경우 mySql에서 자동으로 users로 이름이 변경
-  // id는 mySql에서 자동으로 생성
-  const User = sequelize.define(
-    'User',
-    {
-      email: {
-        type: DataTypes.STRING(30),
-        allowNull: false, // false: 필수 데이터
-        unique: true, // 고유한 값( 중복불가)
+const DataTypes = require('sequelize');
+const { Model } = DataTypes;
+
+module.exports = class User extends Model {
+  static init(sequelize) {
+    return super.init(
+      {
+        // id가 기본적으로 들어있다.
+        email: {
+          type: DataTypes.STRING(30), // STRING, TEXT, BOOLEAN, INTEGER, FLOAT, DATETIME
+          allowNull: false, // 필수
+          unique: true, // 고유한 값
+        },
+        nickname: {
+          type: DataTypes.STRING(30),
+          allowNull: false, // 필수
+        },
+        password: {
+          type: DataTypes.STRING(100),
+          allowNull: false, // 필수
+        },
       },
-      nickname: {
-        type: DataTypes.STRING(30),
-        allowNull: false,
-      },
-      password: {
-        type: DataTypes.STRING(100), // 비밀번호가 암호화 할 시 길이가 길어짐
-        allowNull: false,
-      },
-    },
-    // User 모델 관련 설정
-    {
-      charset: 'utf8',
-      collate: 'utf8_general_ci', // 한글 데이터 저장
-    }
-  );
-  User.associate = (db) => {
-    db.User.hasMany(db.Post); // 1 대 다 관계
+      {
+        modelName: 'User',
+        tableName: 'users',
+        charset: 'utf8',
+        collate: 'utf8_general_ci', // 한글 저장
+        sequelize,
+      }
+    );
+  }
+  static associate(db) {
+    db.User.hasMany(db.Post);
     db.User.hasMany(db.Comment);
-    db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' }); // 사용자와 게시글의 좋아요 기능 관계
+    db.User.belongsToMany(db.Post, { through: 'Like', as: 'Liked' });
     db.User.belongsToMany(db.User, {
       through: 'Follow',
       as: 'Followers',
@@ -38,7 +43,5 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Followings',
       foreignKey: 'FollowerId',
     });
-  };
-
-  return User;
+  }
 };
