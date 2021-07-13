@@ -42,7 +42,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(
   cors({
     // ACCESS-CONTROL-ALLOW-ORIGIN, CREDENTIALS
-    origin: ["http://localhost:3000", "tweeter.com", "http://18.117.136.163"],
+    origin: ["http://localhost:3000", "minbird.com", "http://18.220.118.159"],
     credentials: true,
   })
 );
