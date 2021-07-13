@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon app",
-    "start": "npde app"
+    "start": "node app"
   },
   "author": "Minwoo Jung",
   "license": "ISC",
