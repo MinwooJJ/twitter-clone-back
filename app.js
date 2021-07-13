@@ -42,7 +42,7 @@ if (process.env.NODE_ENV === "production") {
 app.use(
   cors({
     // ACCESS-CONTROL-ALLOW-ORIGIN, CREDENTIALS
-    origin: ["http://localhost:3000", "minbird.com", "http://18.220.118.159"],
+    origin: ["http://localhost:3000", "http://minbird.com"],
     credentials: true,
   })
 );
@@ -56,6 +56,11 @@ app.use(
     saveUninitialized: false,
     resave: false,
     secret: process.env.COOKIE_SECRET,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      domain: process.env.NODE_ENV === "production" && ".minbird.com",
+    },
   })
 );
 app.use(passport.initialize());
