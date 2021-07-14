@@ -34,18 +34,24 @@ if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
   app.use(hpp());
   app.use(helmet());
+  app.use(
+    cors({
+      // ACCESS-CONTROL-ALLOW-ORIGIN, CREDENTIALS
+      origin: "http://minbird.com",
+      credentials: true,
+    })
+  );
 } else {
   app.use(morgan("dev"));
+  app.use(
+    cors({
+      // ACCESS-CONTROL-ALLOW-ORIGIN, CREDENTIALS
+      origin: true,
+      credentials: true,
+    })
+  );
 }
 
-// 모든 요청 허용
-app.use(
-  cors({
-    // ACCESS-CONTROL-ALLOW-ORIGIN, CREDENTIALS
-    origin: ["http://localhost:3000", "http://minbird.com"],
-    credentials: true,
-  })
-);
 // MAC, linux의 운영체제에 때문에 .join 사용
 app.use("/", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
